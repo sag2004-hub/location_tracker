@@ -32,7 +32,7 @@ const createCustomIcon = (iconUrl, iconSize = [25, 41], iconAnchor = [12, 41]) =
 
 // Hospital icon
 const hospitalIcon = createCustomIcon(
-  "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiBmaWxsPSIjZGMyNjI2Ij48cGF0aCBkPSJNMjU2IDhDMTE5IDggOCAxMTkgOCAyNTZzMTExIDI0OCAyNDggMjQ4IDI0OC0xMTEgMjQ4LTI0OFMzOTMgOCAyNTYgOHptMjE2IDI3MmgtLTU2di01NmMwLTQuNC0zLjYtOC04LThoLTQ4Yy00LjQgMC04IDMuNi04IDh2NTZoLTEwNHYtMTA0aDU2YzQuNCAwIDgtMy42IDgtOHYtNDhjMC00LjQtMy42LTgtOC04aC01NmMtNC40IDAtOCAzLjYtOCA4djU2aC0xMDR2LTEwNGg1NmM0LjQgMCA4LTMuNiA4LTh2LTQ4YzAtNC40LTMuNi04LTgtOGgtNTZjLTQuNCAwLTgtMy42LTgtOHYtNDhjMC00LjQgMy42LTggOC04aDU2di0xMDR6Ii8+PC9zdmc+",
+  "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiBmaWxsPSIjZGMyNjI2Ij48cGF0aCBkPSJNMjU2IDhDMTE5IDggOCAxMTkgOCAyNTZzMTExIDI0OCAyNDggMjQ4IDI0OC0xMTEgMjQ4LTI0OFMzOTMgOCAyNTYgOHptMjE2IDI3MmgtLTU2di01NmMwLTQuNC0zLjYtOC04LThoLTQ4Yy00LjQgMC04IDMuNi04IDh2NTZoLTEwNHYtMTA0aDU2YzQuNCAwIDgtMy42IDgtOHYtNDhjMC00LjQtMy42LTgtOC04aC01NmMtNC40IDAtOCAzLjYtOCA4djU2aC0xMDR2LTEwNGg1NmM0LjQgMCA4LTMuNiA4LTh2LTQ4YzAtNC40LTMuNi04LTgtOGgtNTZjLTQuNCAwLTggMy42LTggOHY1Nkg2NHYxMDRoNTZjNC40IDAgOCAzLjYgOCA4djQ4YzAgNC40LTMuNiA4LTggOGgtNTZ2MTA0aDEwNHYtNTZjMC00LjQgMy42LTggOC04aDQ4YzQuNCAwIDggMy42IDggOHY1NmgxMDR2LTEwNGgtNTZjLTQuNCAwLTgtMy42LTgtOHYtNDhjMC00LjQgMy42LTggOC04aDU2di0xMDR6Ii8+PC9zdmc+",
   [30, 30],
   [15, 15]
 );
@@ -638,21 +638,14 @@ export default function OptimizedHospitalTracker() {
       
       const options = {
         enableHighAccuracy: true,
-        timeout: 20000, // Increased timeout to give GPS more time
-        maximumAge: 10000, // Reduced cache age for fresher location data
+        timeout: 15000,
+        maximumAge: 30000
       };
       
       const successCallback = async (position) => {
         const coords = [position.coords.latitude, position.coords.longitude];
         const accuracy = position.coords.accuracy;
         const timestamp = new Date(position.timestamp);
-
-        // Ignore inaccurate readings
-        if (accuracy > 100) {
-          console.log(`Ignoring inaccurate location update. Accuracy: ${accuracy}m`);
-          setRoutingStatus('Waiting for better GPS signal...');
-          return;
-        }
         
         console.log('Location detected:', {
           latitude: coords[0],
