@@ -8,7 +8,48 @@ import {
   Circle,
   useMap,
 } from "react-leaflet";
+import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+
+// Fix for default markers in react-leaflet
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
+  iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
+  shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
+});
+
+// Create custom icons
+const createCustomIcon = (iconUrl, iconSize = [25, 41], iconAnchor = [12, 41]) => {
+  return new L.Icon({
+    iconUrl,
+    iconSize,
+    iconAnchor,
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
+  });
+};
+
+// Hospital icon
+const hospitalIcon = createCustomIcon(
+  "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiBmaWxsPSIjZGMyNjI2Ij48cGF0aCBkPSJNMjU2IDhDMTE5IDggOCAxMTkgOCAyNTZzMTExIDI0OCAyNDggMjQ4IDI0OC0xMTEgMjQ4LTI0OFMzOTMgOCAyNTYgOHptMjE2IDI3MmgtLTU2di01NmMwLTQuNC0zLjYtOC04LThoLTQ4Yy00LjQgMC04IDMuNi04IDh2NTZoLTEwNHYtMTA0aDU2YzQuNCAwIDgtMy42IDgtOHYtNDhjMC00LjQtMy42LTgtOC04aC01NmMtNC40IDAtOCAzLjYtOCA4djU2aC0xMDR2LTEwNGg1NmM0LjQgMCA4LTMuNiA4LTh2LTQ4YzAtNC40LTMuNi04LTgtOGgtNTZjLTQuNCAwLTggMy42LTggOHY1Nkg2NHYxMDRoNTZjNC40IDAgOCAzLjYgOCA4djQ4YzAgNC40LTMuNiA4LTggOGgtNTZ2MTA0aDEwNHYtNTZjMC00LjQgMy42LTggOC04aDQ4YzQuNCAwIDggMy42IDggOHY1NmgxMDR2LTEwNGgtNTZjLTQuNCAwLTgtMy42LTgtOHYtNDhjMC00LjQgMy42LTggOC04aDU2di0xMDR6Ii8+PC9zdmc+",
+  [30, 30],
+  [15, 15]
+);
+
+// Emergency icon
+const emergencyIcon = createCustomIcon(
+  "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiBmaWxsPSIjZGMyNjI2Ij48cGF0aCBkPSJNMjU2IDhDMTE5IDggOCAxMTkgOCAyNTZzMTExIDI0OCAyNDggMjQ4IDI0OC0xMTEgMjQ4LTI0OFMzOTMgOCAyNTYgOHptMCA0NDhjLTExMC41IDAtMjAwLTg5LjUtMjAwLTIwMFMxNDUuNSA1NiAyNTYgNTZzMjAwIDg5LjUgMjAwIDIwMC04OS41IDIwMC0yMDAgMjAwem05Ni0zMTJjMCAxNy43LTE0LjMgMzItMzIgMzJIMTkyYy0xNy43IDAtMzItMTQuMy0zMi0zMnYtNjRjMC0xNy43IDE0LjMtMzIgMzItMzJoMTI4YzE3LjcgMCAzMiAxNC4zIDMyIDMydjY0ek0xOTIgMjg4aDEyOGMxNy43IDAgMzIgMTQuMyAzMiAzMnY2NGMwIDE3LjctMTQuMyAzMi0zMiAzMkgxOTJjLTE3LjcgMC0zMi0xNC4zLTMyLTMydi02NGMwLTE3LjcgMTQuMy0zMiAzMi0zMnoiLz48L3N2Zz4=",
+  [30, 30],
+  [15, 15]
+);
+
+// User location icon
+const userLocationIcon = createCustomIcon(
+  "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzODQgNTEyIiBmaWxsPSIjMzZhOTZlIj48cGF0aCBkPSJNMTkyIDBDODYuNCAwIDAgODYuNCAwIDE5MmMwIDc2LjMgMjUuNyA5Ny45IDE3Mi44IDMxMC40IDQuOCA2LjcgMTQgOS40IDIyLjUgNi4zIDI1LjktMTAuMyA1Mi4xLTIzLjQgNzkuMy0zNy43IDguNC00LjUgMTQuOS0xMi43IDE0LjktMjIuMXYtLjVjMC0xMC4yLTUuOS0xOS41LTE1LjEtMjQuM0MyMzEuOCAxODQuOCAxOTIgMTQ1LjcgMTkyIDk2YzAtNTMuMSA0Mi45LTk2IDk2LTk2czk2IDQyLjkgOTYgOTZjMCA0OS43LTM5LjggODguOC05Ni45IDk1LjctOS4yIDQuOC0xNS4xIDE0LTE1LjEgMjQuM3YxLjZjMCA5LjkgNi41IDE4LjIgMTUuNCAyMS43IDI3LjggMTQuMyA1NCAyNy43IDgwLjQgMzguMSA4LjQgNC41IDE0LjkgMTIuNyAxNC45IDIyLjIgMCA2LjEtMy40IDExLjktOC44IDE1LjUtMTQuNCA4LjctMjguOSAxNi41LTQzLjUgMjMuOC0zLjUgMS44LTcuNCAyLjctMTEuMyAyLjdzLTcuOC0uOS0xMS4zLTIuN2MtMTQuNi03LjMtMjktMTUuMS00My4zLTIzLjYtMy4zLTEuNy02LjctNC0xMC4xLTYuN0M2NS43IDI1NC4yIDAgMjI5LjggMCAxOTIgMCA4Ni40IDg2LjQgMCAxOTIgMHoiLz48L3N2Zz4=",
+  [30, 30],
+  [15, 15]
+);
 
 // Utility: Haversine formula (km)
 function haversine(lat1, lon1, lat2, lon2) {
@@ -508,24 +549,53 @@ export default function OptimizedHospitalTracker() {
   const [locationPermission, setLocationPermission] = useState('prompt');
   const [locationAccuracy, setLocationAccuracy] = useState(null);
   const [lastLocationUpdate, setLastLocationUpdate] = useState(null);
-  // ----- FIX: Added the missing routingStatus state variable -----
   const [routingStatus, setRoutingStatus] = useState('Idle');
 
-  // ----- HELPER FUNCTIONS: Added to prevent "not defined" errors -----
-  const checkLocationPermission = async () => {
-    // In a real app, you'd use navigator.permissions.query
-    return 'prompt'; 
-  };
-  
-  const requestLocationPermission = async () => {
-    // This is handled by navigator.geolocation.watchPosition which prompts the user
-    return;
-  };
+  // Check location permission
+  const checkLocationPermission = useCallback(async () => {
+    if (navigator.permissions && navigator.permissions.query) {
+      try {
+        const permissionStatus = await navigator.permissions.query({ name: 'geolocation' });
+        setLocationPermission(permissionStatus.state);
+        return permissionStatus.state;
+      } catch (error) {
+        console.error('Permission query error:', error);
+        return 'prompt';
+      }
+    }
+    return 'prompt';
+  }, []);
+
+  // Request location permission
+  const requestLocationPermission = useCallback(async () => {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        reject(new Error('Geolocation is not supported'));
+        return;
+      }
+      
+      // Test with a simple getCurrentPosition to trigger permission prompt
+      navigator.geolocation.getCurrentPosition(
+        () => {
+          setLocationPermission('granted');
+          resolve();
+        },
+        (error) => {
+          if (error.code === error.PERMISSION_DENIED) {
+            setLocationPermission('denied');
+          }
+          reject(error);
+        },
+        { timeout: 5000 }
+      );
+    });
+  }, []);
 
   useEffect(() => {
     const saved = "Worker-" + myDeviceId.slice(-4);
     setMyDeviceName(saved);
-  }, [myDeviceId]);
+    checkLocationPermission();
+  }, [myDeviceId, checkLocationPermission]);
 
   useEffect(() => {
     const unsubscribe = locationService.subscribe((data) => {
@@ -551,41 +621,52 @@ export default function OptimizedHospitalTracker() {
       setConnectionStatus('Requesting location permission...');
       setLocationError(null);
       setRoutingStatus('Checking location access...');
+      
       if (!navigator.geolocation) {
         throw new Error('Geolocation is not supported by this browser');
       }
+      
       const permissionStatus = await checkLocationPermission();
       if (permissionStatus === 'denied') {
         throw new Error('Location access was previously denied. Please enable location access in your browser settings.');
       }
-      setConnectionStatus('Waiting for location permission...');
-      await requestLocationPermission();
+      
+      if (permissionStatus === 'prompt') {
+        setConnectionStatus('Waiting for location permission...');
+        await requestLocationPermission();
+      }
+      
       const options = {
         enableHighAccuracy: true,
-        timeout: 10000,
+        timeout: 15000,
         maximumAge: 30000
       };
+      
       const successCallback = async (position) => {
         const coords = [position.coords.latitude, position.coords.longitude];
         const accuracy = position.coords.accuracy;
         const timestamp = new Date(position.timestamp);
+        
         console.log('Location detected:', {
           latitude: coords[0],
           longitude: coords[1],
           accuracy: accuracy,
           timestamp: timestamp
         });
+        
         setMyPosition(coords);
         setLocationAccuracy(accuracy);
         setLastLocationUpdate(timestamp);
         setConnectionStatus('Location tracking active');
         setLocationError(null);
         setRoutingStatus('Updating location...');
+        
         if (isSharing) {
           await locationService.updateDeviceLocation(myDeviceId, coords, accuracy);
         } else {
           await locationService.updateHospitals(coords[0], coords[1], hospitalRadius);
         }
+        
         setTimeout(() => {
           if (autoRouting && networkData.hospitalRoutes.length > 0) {
             const shortest = networkData.hospitalRoutes[0];
@@ -598,9 +679,11 @@ export default function OptimizedHospitalTracker() {
           }
         }, 1000);
       };
+      
       const errorCallback = (error) => {
         let message = 'Location error occurred';
         let suggestion = '';
+        
         switch (error.code) {
           case error.PERMISSION_DENIED:
             setLocationPermission('denied');
@@ -619,25 +702,38 @@ export default function OptimizedHospitalTracker() {
             message = 'Unknown location error';
             suggestion = 'Please try refreshing the page';
         }
+        
         setLocationError(message + (suggestion ? '. ' + suggestion : ''));
         setConnectionStatus('Location error');
         setRoutingStatus('Error getting location');
         console.error('Location error:', error);
       };
+      
+      // Get initial position first
+      navigator.geolocation.getCurrentPosition(
+        successCallback,
+        errorCallback,
+        options
+      );
+      
+      // Then set up continuous tracking
       const id = navigator.geolocation.watchPosition(
         successCallback,
         errorCallback,
         options
       );
+      
       setWatchId(id);
       setConnectionStatus('Locating device...');
+      setIsTracking(true);
+      
     } catch (error) {
       setLocationError(error.message);
       setConnectionStatus('Error');
       setRoutingStatus('Location access failed');
       console.error('Location setup error:', error);
     }
-  }, [myDeviceId, isSharing, hospitalRadius, autoRouting, selectedRoute, networkData.hospitalRoutes]);
+  }, [myDeviceId, isSharing, hospitalRadius, autoRouting, selectedRoute, networkData.hospitalRoutes, checkLocationPermission, requestLocationPermission]);
 
   const stopLocationTracking = useCallback(() => {
     if (watchId) {
@@ -655,7 +751,6 @@ export default function OptimizedHospitalTracker() {
     if (isTracking) {
       stopLocationTracking();
     } else {
-      setIsTracking(true);
       startLocationTracking();
     }
   };
@@ -1060,7 +1155,7 @@ export default function OptimizedHospitalTracker() {
                 />
               )}
               {myPosition && (
-                <Marker position={myPosition}>
+                <Marker position={myPosition} icon={userLocationIcon}>
                   <Popup>
                     <div className="text-center">
                       <strong>{myDeviceName}</strong><br />
@@ -1099,6 +1194,7 @@ export default function OptimizedHospitalTracker() {
                 <Marker
                   key={hospital.id}
                   position={hospital.position}
+                  icon={hospital.emergency ? emergencyIcon : hospitalIcon}
                 >
                   <Popup>
                     <div className="text-center min-w-48">
